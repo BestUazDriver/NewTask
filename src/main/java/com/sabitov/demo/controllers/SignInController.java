@@ -1,19 +1,20 @@
 package com.sabitov.demo.controllers;
 
+import com.sabitov.demo.account_dto.CreateUserDto;
+import com.sabitov.demo.account_dto.SimpleUserDto;
 import com.sabitov.demo.models.Account;
 import com.sabitov.demo.services.AccountService;
 import org.hibernate.exception.SQLGrammarException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Size;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
-@Controller
+@RestController
 @RequestMapping("/sign_in")
 public class SignInController {
 
@@ -28,29 +29,18 @@ public class SignInController {
     }
 
     @GetMapping
-    public String controller() {
-        return "sign_in";
+    public Iterable<SimpleUserDto> controller() {
+        return accountService.findAll().stream().map(SimpleUserDto::reverseForm).collect(Collectors.toList());
     }
 
     @PostMapping
-    public String signIn(@RequestParam("name") String name, @RequestParam("email") String email, @RequestParam("password") String password) {
+    public SimpleUserDto signIn(@Valid @RequestBody CreateUserDto dto) {
         Account account = Account.builder().
-                name(name).
-                email(email).
-                password(password).
+                name(dto.getName()).
+                email(dto.getEmail()).
+                password(dto.getPassword()).
                 role("user").
                 build();
-        System.out.println(account);
-        try {
-            accountService.saveAccount(account);
-            LOGGER.log(Level.FINE, "Saved user");
-        } catch (SQLGrammarException e) {
-            LOGGER.log(Level.WARNING, "Incorrect data");
-            throw new IllegalArgumentException(e);
-        } catch (IllegalArgumentException e) {
-            LOGGER.log(Level.WARNING, "Couldn't save user: Unknown error");
-            throw new IllegalArgumentException(e);
-        }
-        return "main_page";
+        return accountService.saveDto(account);
     }
 }

@@ -1,10 +1,12 @@
 package com.sabitov.demo.services;
 
+import com.sabitov.demo.account_dto.SimpleUserDto;
 import com.sabitov.demo.models.Account;
 import com.sabitov.demo.repositories.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -41,6 +43,13 @@ public class AccountService {
             }
         }
         return Optional.empty();
+    }
+    public List<Account> findAll(){
+        return accountRepository.findAll();
+    }
+    public SimpleUserDto saveDto(Account account){
+        accountRepository.save(account);
+        return SimpleUserDto.reverseForm(account);
     }
 
 }

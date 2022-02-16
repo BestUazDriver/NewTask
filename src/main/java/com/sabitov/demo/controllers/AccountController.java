@@ -11,6 +11,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class AccountController {
     @GetMapping
     public String account(){
-        return "/account";
+        return "sign_in";
     }
 }
